@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SonicFlow AI | Commercial Voice Lab</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0f1e; color: #e2e8f0; padding: 20px 16px; min-height: 100vh; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .logo { font-size: 20px; font-weight: 800; color: #f43f5e; display: flex; align-items: center; gap: 8px; }
+  .license-pill { background: rgba(45,212,191,0.1); color: #2dd4bf; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(45,212,191,0.2); }
+
+  /* NAV TABS */
+  .nav-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+  .tab { padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid #1e293b; background: #111827; color: #64748b; transition: all 0.15s; }
+  .tab.active { background: #1e1b4b; color: #818cf8; border-color: #3730a3; }
+
+  /* MAIN GRID */
+  .grid { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .studio-col { flex: 1; min-width: 280px; }
+  .settings-col { flex: 0 0 260px; }
+
+  /* PANEL */
+  .panel { background: #111827; border: 1px solid #1e293b; border-radius: 20px; padding: 22px; margin-bottom: 16px; }
+  .panel-title { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 16px; }
+
+  /* TEXTAREA */
+  .script-area { width: 100%; min-height: 200px; background: #0a0f1e; border: 1px solid #1e293b; border-radius: 14px; padding: 16px; color: #e2e8f0; font-size: 14px; font-family: inherit; resize: vertical; outline: none; line-height: 1.7; transition: border-color 0.2s; }
+  .script-area:focus { border-color: #f43f5e; }
+  .script-area::placeholder { color: #334155; }
+
+  /* CHAR COUNT */
+  .char-count { text-align: right; font-size: 11px; color: #334155; margin-top: 6px; margin-bottom: 14px; }
+
+  /* VISUALIZER */
+  .visualizer { height: 56px; background: #0a0f1e; border: 1px solid #1e293b; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 3px; margin-bottom: 16px; overflow: hidden; padding: 0 12px; }
+  .bar { width: 4px; background: #f43f5e; border-radius: 2px; transition: height 0.08s ease; min-height: 4px; }
+
+  /* BUTTONS */
+  .btn { padding: 13px 20px; border-radius: 12px; border: none; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; width: 100%; }
+  .btn-generate { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; }
+  .btn-generate:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(244,63,94,0.3); }
+  .btn-stop    { background: #1e293b; color: #f43f5e; border: 1px solid #f43f5e; margin-top: 10px; display: none; }
+  .btn-stop:hover { background: rgba(244,63,94,0.1); }
+  .btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* SETTINGS */
+  .ctrl-group { margin-bottom: 18px; }
+  .ctrl-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .ctrl-val { color: #818cf8; }
+  .ctrl-select { width: 100%; background: #0a0f1e; border: 1px solid #1e293b; color: #e2e8f0; padding: 10px 12px; border-radius: 10px; font-size: 13px; font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; }
+  .ctrl-select:focus { border-color: #f43f5e; }
+  .ctrl-range { width: 100%; appearance: none; -webkit-appearance: none; height: 4px; background: #1e293b; border-radius: 2px; outline: none; cursor: pointer; }
+  .ctrl-range::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; background: #f43f5e; border-radius: 50%; cursor: pointer; }
+  .ctrl-range::-moz-range-thumb { width: 16px; height: 16px; background: #f43f5e; border-radius: 50%; border: none; cursor: pointer; }
+
+  /* QUICK TEXTS */
+  .quick-title { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .quick-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+  .chip { background: #0a0f1e; border: 1px solid #1e293b; color: #64748b; font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .chip:hover { border-color: #f43f5e; color: #f43f5e; }
+
+  /* LICENSE CARD */
+  .license-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #2dd4bf33; border-radius: 14px; padding: 16px; margin-top: 4px; }
+  .lic-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .lic-key   { font-family: 'Courier New', monospace; font-size: 12px; color: #2dd4bf; font-weight: 700; }
+  .lic-note  { font-size: 10px; color: #334155; margin-top: 8px; }
+
+  /* STATUS */
+  .status-msg { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; min-height: 18px; }
+  .status-msg.active { color: #f43f5e; }
+  .status-msg.done   { color: #10b981; }
+
+  /* NO SUPPORT MSG */
+  .no-support { background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.2); border-radius: 12px; padding: 12px 16px; font-size: 12px; color: #f87171; display: none; }
+
+  @media (max-width: 580px) {
+    .settings-col { flex: 0 0 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🎙️ SonicFlow AI</div>
+    <div class="license-pill">✅ Commercial License Active</div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <div class="tab active">🎤 Voice Lab</div>
+    <div class="tab">📁 My Projects</div>
+    <div class="tab">🔑 API & License</div>
+  </div>
+
+  <!-- NO SUPPORT WARNING -->
+  <div class="no-support" id="noSupport">
+    ⚠️ Your browser does not support Web Speech API. Please use Chrome, Edge, or Safari for voice generation.
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- STUDIO COL -->
+    <div class="studio-col">
+      <div class="panel">
+        <div class="panel-title">🖊️ Script Input</div>
+        <textarea class="script-area" id="ttsInput" placeholder="Type or paste your script here...&#10;&#10;e.g. Welcome to SonicFlow AI — the most powerful commercial voice lab for creators, educators, and businesses." oninput="updateCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span> / 2000 characters</div>
+
+        <!-- VISUALIZER -->
+        <div class="visualizer" id="visualizer"></div>
+
+        <!-- STATUS -->
+        <div class="status-msg" id="statusMsg">Ready to render voice</div>
+
+        <!-- BUTTONS -->
+        <button class="btn btn-generate" id="genBtn" onclick="generateVoice()">
+          🎙️ Render Voice Over
+        </button>
+        <button class="btn btn-stop" id="stopBtn" onclick="stopVoice()">
+          ⏹ Stop Playback
+        </button>
+      </div>
+
+      <!-- QUICK TEXTS -->
+      <div class="panel">
+        <div class="quick-title">⚡ Quick Sample Scripts</div>
+        <div class="quick-chips">
+          <button class="chip" onclick="setScript('Welcome to our platform. We help businesses grow with smart tools and intelligent automation.')">Welcome Message</button>
+          <button class="chip" onclick="setScript('File your GST returns on time to avoid penalties. Our easy-to-use tool makes compliance simple and stress-free.')">GST Reminder</button>
+          <button class="chip" onclick="setScript('Your invoice number 1042 for rupees fifteen thousand has been successfully generated and sent to the client.')">Invoice Alert</button>
+          <button class="chip" onclick="setScript('Thank you for choosing our services. Your account has been activated. Please login to explore all features.')">Onboarding</button>
+          <button class="chip" onclick="setScript('Attention! Your subscription is expiring in 3 days. Renew now to continue enjoying uninterrupted access to all premium features.')">Subscription Alert</button>
+          <button class="chip" onclick="setScript('नमस्ते! हमारे प्लेटफ़ॉर्म पर आपका स्वागत है। हम आपकी व्यावसायिक ज़रूरतों को पूरा करने के लिए यहाँ हैं।')">Hindi Welcome</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS COL -->
+    <div class="settings-col">
+      <div class="panel">
+        <div class="panel-title">🎛️ Voice Settings</div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Voice Model</div>
+          <select class="ctrl-select" id="voiceSelect"></select>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Speed <span class="ctrl-val" id="speedVal">1.0x</span></div>
+          <input class="ctrl-range" type="range" id="speedRange" min="0.5" max="2.0" step="0.1" value="1.0"
+            oninput="document.getElementById('speedVal').innerText = parseFloat(this.value).toFixed(1) + 'x'">
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Pitch <span class="ctrl-val" id="pitchVal">0</span></div>
+          <input class="ctrl-range" type="range" id="pitchRange" min="-2" max="2" step="0.1" value="0"
+            oninput="document.getElementById('pitchVal').innerText = parseFloat(this.value).toFixed(1)">
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-label">Volume <span class="ctrl-val" id="volVal">100%</span></div>
+          <input class="ctrl-range" type="range" id="volRange" min="0" max="1" step="0.05" value="1"
+            oninput="document.getElementById('volVal').innerText = Math.round(this.value * 100) + '%'">
+        </div>
+
+        <div class="license-card">
+          <div class="lic-label">License Key</div>
+          <div class="lic-key">LIC-SF-8829-PRO-COMM</div>
+          <div class="lic-note">✅ Valid for: YouTube, Podcasts &amp; Paid Ads</div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="panel">
+        <div class="panel-title">ℹ️ About</div>
+        <p style="font-size:12px;color:#475569;line-height:1.7">SonicFlow uses your browser's built-in <strong style="color:#94a3b8">Web Speech API</strong> for voice synthesis — no external API needed.<br><br>
+        Supported browsers: <span style="color:#10b981">Chrome ✅ Edge ✅ Safari ✅</span><br>Firefox: Limited support.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var synth    = window.speechSynthesis;
+  var utterance = null;
+  var vizInterval = null;
+  var bars = [];
+
+  // Build visualizer bars
+  var viz = document.getElementById('visualizer');
+  for (var i = 0; i < 36; i++) {
+    var b = document.createElement('div');
+    b.className = 'bar';
+    b.style.height = '4px';
+    viz.appendChild(b);
+    bars.push(b);
+  }
+
+  // Check browser support
+  if (!('speechSynthesis' in window)) {
+    document.getElementById('noSupport').style.display = 'block';
+    document.getElementById('genBtn').disabled = true;
+  }
+
+  // Populate voices
+  function loadVoices() {
+    var sel = document.getElementById('voiceSelect');
+    sel.innerHTML = '';
+    var voices = synth.getVoices();
+    if (voices.length === 0) {
+      sel.innerHTML = '<option value="">Loading voices...</option>';
+      return;
+    }
+    // Prefer English voices first
+    var enVoices = voices.filter(function(v){ return v.lang.startsWith('en'); });
+    var hiVoices = voices.filter(function(v){ return v.lang.startsWith('hi'); });
+    var otherVoices = voices.filter(function(v){ return !v.lang.startsWith('en') && !v.lang.startsWith('hi'); });
+    var sorted = enVoices.concat(hiVoices).concat(otherVoices);
+    sorted.forEach(function(v) {
+      var opt = document.createElement('option');
+      opt.value = v.name;
+      opt.innerText = v.name + ' (' + v.lang + ')';
+      sel.appendChild(opt);
+    });
+  }
+
+  if (synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = loadVoices;
+  }
+  loadVoices();
+  setTimeout(loadVoices, 500);
+
+  function updateCount() {
+    var len = document.getElementById('ttsInput').value.length;
+    document.getElementById('charCount').innerText = len;
+  }
+
+  function setScript(text) {
+    document.getElementById('ttsInput').value = text;
+    updateCount();
+  }
+
+  function startVisualizer() {
+    vizInterval = setInterval(function() {
+      bars.forEach(function(b) {
+        b.style.height = (Math.random() * 38 + 4) + 'px';
+      });
+    }, 90);
+  }
+
+  function stopVisualizer() {
+    clearInterval(vizInterval);
+    bars.forEach(function(b){ b.style.height = '4px'; });
+  }
+
+  function generateVoice() {
+    var text  = document.getElementById('ttsInput').value.trim();
+    var speed = parseFloat(document.getElementById('speedRange').value) || 1;
+    var pitch = parseFloat(document.getElementById('pitchRange').value) || 0;
+    var vol   = parseFloat(document.getElementById('volRange').value);
+    var voiceName = document.getElementById('voiceSelect').value;
+    var statusEl = document.getElementById('statusMsg');
+
+    if (!text) { alert('Please enter text to generate voice!'); return; }
+    if (text.length > 2000) { alert('Maximum 2000 characters allowed.'); return; }
+
+    // Cancel any ongoing speech
+    synth.cancel();
+
+    utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate   = speed;
+    utterance.pitch  = pitch;
+    utterance.volume = vol;
+
+    // Set voice
+    var voices = synth.getVoices();
+    var selectedVoice = voices.find(function(v){ return v.name === voiceName; });
+    if (selectedVoice) utterance.voice = selectedVoice;
+
+    // Events
+    utterance.onstart = function() {
+      startVisualizer();
+      document.getElementById('genBtn').disabled = true;
+      document.getElementById('stopBtn').style.display = 'flex';
+      statusEl.className = 'status-msg active';
+      statusEl.innerText = '🔴 Rendering voice...';
+    };
+
+    utterance.onend = function() {
+      stopVisualizer();
+      document.getElementById('genBtn').disabled = false;
+      document.getElementById('stopBtn').style.display = 'none';
+      statusEl.className = 'status-msg done';
+      statusEl.innerText = '✅ Voice rendered successfully!';
+    };
+
+    utterance.onerror = function(e) {
+      stopVisualizer();
+      document.getElementById('genBtn').disabled = false;
+      document.getElementById('stopBtn').style.display = 'none';
+      statusEl.className = 'status-msg';
+      statusEl.innerText = '❌ Error: ' + e.error;
+    };
+
+    synth.speak(utterance);
+  }
+
+  function stopVoice() {
+    synth.cancel();
+    stopVisualizer();
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('statusMsg').className = 'status-msg';
+    document.getElementById('statusMsg').innerText = 'Stopped.';
+  }
+
+  // Initialize char count
+  updateCount();
+</script>
+</body>
+</html>
